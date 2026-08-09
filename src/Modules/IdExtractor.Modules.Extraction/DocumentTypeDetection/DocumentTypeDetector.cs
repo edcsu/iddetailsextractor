@@ -1,4 +1,5 @@
 using IdExtractor.Modules.Extraction.Mrz;
+using IdExtractor.SharedKernel.Contracts.Extraction;
 
 namespace IdExtractor.Modules.Extraction.DocumentTypeDetection;
 

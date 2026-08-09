@@ -1,6 +1,4 @@
-using IdExtractor.Modules.Extraction.DocumentTypeDetection;
-
-namespace IdExtractor.Modules.Extraction.Contracts;
+namespace IdExtractor.SharedKernel.Contracts.Extraction;
 
 /// <summary>
 /// The outcome of one extraction. <see cref="Id"/> is minted by the extraction

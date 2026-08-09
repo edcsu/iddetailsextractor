@@ -1,4 +1,4 @@
-namespace IdExtractor.Modules.Extraction.DocumentTypeDetection;
+namespace IdExtractor.SharedKernel.Contracts.Extraction;
 
 public enum DocumentType
 {

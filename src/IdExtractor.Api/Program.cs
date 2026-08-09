@@ -3,6 +3,7 @@ using Asp.Versioning;
 using IdExtractor.Api.Infrastructure.Auth;
 using IdExtractor.Api.Infrastructure.Logging;
 using IdExtractor.Api.Infrastructure.RateLimiting;
+using IdExtractor.Modules.Documents;
 using IdExtractor.Modules.Extraction;
 using IdExtractor.SharedKernel.Auditing;
 using IdExtractor.SharedKernel.Modules;
@@ -110,7 +111,7 @@ builder.Services.AddOpenApi("v1", options =>
 
 builder.Services.AddHealthChecks();
 
-IModule[] modules = [new ExtractionModule()];
+IModule[] modules = [new ExtractionModule(), new DocumentsModule()];
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblies(modules.Select(m => m.GetType().Assembly).Distinct().ToArray()));

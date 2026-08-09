@@ -1,10 +1,10 @@
 using Ardalis.Result;
-using IdExtractor.Modules.Extraction.Contracts;
 using IdExtractor.Modules.Extraction.DocumentTypeDetection;
 using IdExtractor.Modules.Extraction.Fields;
 using IdExtractor.Modules.Extraction.Mrz;
 using IdExtractor.Modules.Extraction.Ocr;
 using IdExtractor.Modules.Extraction.Validation;
+using IdExtractor.SharedKernel.Contracts.Extraction;
 using IdExtractor.SharedKernel.Telemetry;
 using MediatR;
 

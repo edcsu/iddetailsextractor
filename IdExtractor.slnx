@@ -9,6 +9,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/IdExtractor.Api.IntegrationTests/IdExtractor.Api.IntegrationTests.csproj" />
+    <Project Path="tests/IdExtractor.Modules.Documents.Tests/IdExtractor.Modules.Documents.Tests.csproj" />
     <Project Path="tests/IdExtractor.Modules.Extraction.Tests/IdExtractor.Modules.Extraction.Tests.csproj" />
   </Folder>
 </Solution>

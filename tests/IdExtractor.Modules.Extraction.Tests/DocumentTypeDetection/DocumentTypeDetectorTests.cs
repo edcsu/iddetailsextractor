@@ -1,5 +1,6 @@
 using IdExtractor.Modules.Extraction.DocumentTypeDetection;
 using IdExtractor.Modules.Extraction.Mrz;
+using IdExtractor.SharedKernel.Contracts.Extraction;
 
 namespace IdExtractor.Modules.Extraction.Tests.DocumentTypeDetection;
 
