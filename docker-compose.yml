@@ -1,0 +1,57 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/IdExtractor.Api/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DocumentsDb: "Host=postgres;Port=5432;Database=idextractor;Username=idextractor;Password=idextractor"
+      Ocr__PaddleBaseUrl: "http://ocr-service:8001"
+      ImageStore__RootPath: "/data/images"
+      ApiKeys__Keys__0__Name: "default"
+      ApiKeys__Keys__0__HashedKey: "${API_KEY_HASH:?Set API_KEY_HASH in a .env file or the environment — see README for how to generate one}"
+    volumes:
+      - image-store:/data/images
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ocr-service:
+        condition: service_started
+    networks:
+      - idextractor
+
+  ocr-service:
+    build:
+      context: ./ocr-service
+    environment:
+      OCR_LANG: en
+    # Deliberately no `ports:` — only reachable from the api service on the
+    # internal network, never exposed to the host.
+    networks:
+      - idextractor
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: idextractor
+      POSTGRES_PASSWORD: idextractor
+      POSTGRES_DB: idextractor
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U idextractor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - idextractor
+
+volumes:
+  postgres-data:
+  image-store:
+
+networks:
+  idextractor:
+    driver: bridge

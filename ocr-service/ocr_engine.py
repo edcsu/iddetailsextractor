@@ -30,22 +30,28 @@ class OcrEngine:
                 if self._paddle_ocr is None:
                     from paddleocr import PaddleOCR
 
-                    self._paddle_ocr = PaddleOCR(lang=self._lang, use_angle_cls=True, show_log=False)
+                    # PaddleOCR 3.x rewrote its constructor around PaddleX pipelines:
+                    # `use_angle_cls` became `use_textline_orientation`, and `show_log`
+                    # was removed entirely (it now uses standard Python logging).
+                    self._paddle_ocr = PaddleOCR(lang=self._lang, use_textline_orientation=True)
         return self._paddle_ocr
 
     def recognize(self, image: Image.Image) -> list[dict]:
         ocr = self._ensure_loaded()
         array = np.array(image.convert("RGB"))
-        result = ocr.ocr(array, cls=True)
+        results = ocr.predict(array)
 
         lines: list[dict] = []
-        for page in result or []:
-            for box, (text, confidence) in page or []:
+        for page in results:
+            texts = page["rec_texts"]
+            scores = page["rec_scores"]
+            polys = page["rec_polys"]
+            for text, score, poly in zip(texts, scores, polys):
                 lines.append(
                     {
                         "text": text,
-                        "confidence": float(confidence),
-                        "bounding_box": [[float(x), float(y)] for x, y in box],
+                        "confidence": float(score),
+                        "bounding_box": [[float(x), float(y)] for x, y in poly],
                     }
                 )
         return lines

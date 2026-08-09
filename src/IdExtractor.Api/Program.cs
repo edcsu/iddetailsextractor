@@ -4,11 +4,13 @@ using IdExtractor.Api.Infrastructure.Auth;
 using IdExtractor.Api.Infrastructure.Logging;
 using IdExtractor.Api.Infrastructure.RateLimiting;
 using IdExtractor.Modules.Documents;
+using IdExtractor.Modules.Documents.Persistence;
 using IdExtractor.Modules.Extraction;
 using IdExtractor.SharedKernel.Auditing;
 using IdExtractor.SharedKernel.Modules;
 using IdExtractor.SharedKernel.Telemetry;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -123,6 +125,18 @@ foreach (var module in modules)
 
 var app = builder.Build();
 
+// Single-instance deployment assumption: applying migrations on startup keeps
+// `docker compose up` a one-command experience. A multi-instance deployment should
+// replace this with a separate migration step run before the new instances start.
+// Skipped in the "Testing" environment — integration tests control migration
+// timing themselves against their own Testcontainers database.
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    using var startupScope = app.Services.CreateScope();
+    var documentsDb = startupScope.ServiceProvider.GetRequiredService<DocumentsDbContext>();
+    await documentsDb.Database.MigrateAsync();
+}
+
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
@@ -132,7 +146,7 @@ app.UseAuthorization();
 
 app.UseRateLimiter();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
 {
     app.MapOpenApi();
     app.MapScalarApiReference(options => options.AddDocument("v1", "API v1"));
