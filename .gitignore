@@ -58,3 +58,12 @@ out/
 .turbo/
 next-env.d.ts
 /.playwright-mcp
+
+# Python (ocr-service/)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Claude Code harness state
+.claude/
