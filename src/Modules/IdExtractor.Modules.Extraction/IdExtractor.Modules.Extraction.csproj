@@ -5,13 +5,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.Result" Version="10.1.0" />
+    <PackageReference Include="Ardalis.Result.AspNetCore" Version="10.1.0" />
     <PackageReference Include="MediatR" Version="[12.5.0]" />
+    <PackageReference Include="PDFtoImage" Version="5.3.0" />
   </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- CA1416: PDFtoImage.Conversion.ToImage is annotated as supported only on a
+         specific OS list, but that list already covers every platform this service
+         deploys to (Linux containers, macOS/Windows dev) — nothing to guard against. -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
   </PropertyGroup>
 
 </Project>

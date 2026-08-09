@@ -3,6 +3,7 @@ using Asp.Versioning;
 using IdExtractor.Api.Infrastructure.Auth;
 using IdExtractor.Api.Infrastructure.Logging;
 using IdExtractor.Api.Infrastructure.RateLimiting;
+using IdExtractor.Modules.Extraction;
 using IdExtractor.SharedKernel.Auditing;
 using IdExtractor.SharedKernel.Modules;
 using IdExtractor.SharedKernel.Telemetry;
@@ -109,6 +110,16 @@ builder.Services.AddOpenApi("v1", options =>
 
 builder.Services.AddHealthChecks();
 
+IModule[] modules = [new ExtractionModule()];
+
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssemblies(modules.Select(m => m.GetType().Assembly).Distinct().ToArray()));
+
+foreach (var module in modules)
+{
+    module.AddModule(builder.Services, builder.Configuration);
+}
+
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
@@ -138,7 +149,6 @@ var apiV1 = app.MapGroup("/api/v{version:apiVersion}")
     .RequireAuthorization()
     .RequireRateLimiting(RateLimiterPolicies.PerApiKey);
 
-IModule[] modules = [];
 foreach (var module in modules)
 {
     module.MapEndpoints(apiV1);
