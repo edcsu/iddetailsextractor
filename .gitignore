@@ -1,0 +1,15 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Local data (source images, etc.)
+data/
+
+# Environment / secrets
+.env
+*.local.json
+
+# OS / editor
+.DS_Store
