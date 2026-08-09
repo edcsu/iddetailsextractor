@@ -38,7 +38,7 @@ public class ExtractionFlowTests(ApiTestFixture fixture)
         var postBody = await postResponse.Content.ReadFromJsonAsync<JsonElement>();
         var id = postBody.GetProperty("id").GetGuid();
 
-        Assert.Equal((int)DocumentType.Passport, postBody.GetProperty("documentType").GetInt32());
+        Assert.Equal(nameof(DocumentType.Passport), postBody.GetProperty("documentType").GetString());
         Assert.True(postBody.GetProperty("mrz").GetProperty("valid").GetBoolean());
         Assert.Equal(
             "ANNA MARIA ERIKSSON",
