@@ -1,9 +1,3 @@
-# .NET
-bin/
-obj/
-*.user
-.vs/
-
 # Local data (source images, etc.)
 data/
 
@@ -13,3 +7,54 @@ data/
 
 # OS / editor
 .DS_Store
+
+# Build output
+bin/
+obj/
+# Stray dir with a literal backslash in its name, created by cross-platform EF/MSBuild tooling
+bin\\Debug/
+**/bin\\Debug/
+out/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+
+# .NET
+*.user
+*.suo
+project.lock.json
+.vs/
+.vscode/
+*.userprefs
+
+# Rider / JetBrains
+.idea/
+
+# Test results / coverage
+[Tt]est[Rr]esult*/
+coverage/
+*.coverage
+*.trx
+
+# Secrets & local config — never commit
+.env
+.env.*
+appsettings.*.local.json
+secrets.json
+
+# Database backups produced by Maintenance/DatabaseBackup
+backups/
+*.dump
+*.sql.gz
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / Next.js (web/)
+node_modules/
+.next/
+out/
+.turbo/
+next-env.d.ts
+/.playwright-mcp
