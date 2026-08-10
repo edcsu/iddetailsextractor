@@ -1,0 +1,6 @@
+# Deps shared by every install flavour — the web layer, no OCR engine.
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+python-multipart==0.0.32
+pillow==12.3.0
+numpy>=1.26,<3

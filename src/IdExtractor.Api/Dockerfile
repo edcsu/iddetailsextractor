@@ -13,6 +13,15 @@ COPY src/ src/
 RUN dotnet publish src/IdExtractor.Api/IdExtractor.Api.csproj -c Release -o /app --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+
+# The aspnet image ships no fonts, so PDF report generation (NetPdfKit → PdfSharp)
+# fails with "No appropriate font found for family name 'Arial'". fonts-liberation is
+# metric-compatible with Arial and fontconfig aliases the name onto it.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fontconfig \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY --from=build /app .
 

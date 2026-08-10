@@ -27,6 +27,8 @@ services:
       context: ./ocr-service
     environment:
       OCR_LANG: en
+      # "rapidocr" (PP-OCR models under onnxruntime) or "paddle" — see ocr-service/ocr_engine.py.
+      OCR_ENGINE: rapidocr
     # Deliberately no `ports:` — only reachable from the api service on the
     # internal network, never exposed to the host.
     networks:

@@ -1,0 +1,6 @@
+# Optional runtime: OCR_ENGINE=paddle. Kept out of requirements.txt because
+# paddlepaddle's aarch64 build segfaults during model construction, which would make
+# the default image unusable on ARM64 hosts. See README.
+-r requirements-base.txt
+paddlepaddle==3.2.2
+paddleocr==3.7.0

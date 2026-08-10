@@ -116,7 +116,7 @@ sequenceDiagram
 | In-process messaging | MediatR 12.5 (pinned — the last free-to-use version) |
 | Result handling | Ardalis.Result — handlers return `Result<T>`, translated to proper HTTP status codes |
 | Database | PostgreSQL, via EF Core |
-| OCR (default) | PaddleOCR, running in a separate internal-only Python/FastAPI container |
+| OCR (default) | PP-OCR models under onnxruntime (RapidOCR), in a separate internal-only Python/FastAPI container |
 | OCR (optional) | Azure AI Vision, config-gated, for higher accuracy on photos |
 | PDF reports | NetPdfKit |
 | Auth | API keys (`X-Api-Key` header), hashed at rest |
@@ -144,16 +144,26 @@ The API is then available at `http://localhost:8080`. The default API key for
 local use is `dev-local-key` (its hash is what's in `.env.example` — see that
 file if you want to use your own key instead).
 
-> **Known limitation:** if you're running Docker on an ARM64 host under
-> virtualization (for example, certain sandboxed/CI environments), PaddleOCR's
-> underlying inference engine can crash with a segmentation fault — this is a
+#### Choosing the OCR engine
+
+The sidecar can run the same PP-OCR models under two different inference runtimes,
+selected with the `OCR_ENGINE` environment variable on the `ocr-service` container:
+
+| `OCR_ENGINE` | Runtime | Notes |
+|---|---|---|
+| `rapidocr` (default) | onnxruntime, via [RapidOCR](https://github.com/RapidAI/RapidOCR) | Works everywhere, including ARM64 |
+| `paddle` | paddlepaddle / paddleocr | Needs `pip install -r ocr-service/requirements-paddle.txt`; see the caveat below |
+
+> **Why the default isn't Paddle:** on an ARM64 host (Apple Silicon, ARM CI runners),
+> PaddlePaddle's inference engine segfaults while constructing the PP-OCR models —
+> the container dies with exit code 139 before any inference happens, and the API
+> sees the OCR request drop mid-flight. That's a
 > [documented upstream issue](https://github.com/PaddlePaddle/PaddleOCR) in
-> PaddlePaddle itself on ARM64, not something in this codebase. It has not been
-> observed on standard x86_64 deployments or on native (non-virtualized)
-> Apple Silicon. Everything except the actual OCR inference step — request
-> handling, auth, MRZ parsing, storage, PDF generation — is covered by the
-> integration test suite using a stubbed OCR provider, so this only affects the
-> real PaddleOCR call itself.
+> PaddlePaddle on ARM64, not something in this codebase; it has not been observed on
+> x86_64. The ONNX backend runs the same models without that runtime, so it is the
+> default. Everything downstream of the OCR call — request handling, auth, MRZ
+> parsing, storage, PDF generation — is covered by the integration test suite with a
+> stubbed OCR provider either way.
 
 ### Option B: Run the API locally, Postgres in Docker
 

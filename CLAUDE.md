@@ -26,8 +26,10 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-Those tests stub out the OCR engine itself (`get_ocr_engine`), so they run without the
-paddleocr/paddlepaddle packages installed — only `requirements-dev.txt`'s lighter deps are needed.
+Those tests stub out the OCR engine itself, so no inference runtime is needed to run them:
+`requirements-dev.txt` pulls only `requirements-base.txt` (the web layer) plus pytest/httpx.
+The engine packages live in `requirements.txt` (rapidocr/onnxruntime) and
+`requirements-paddle.txt` (paddleocr/paddlepaddle), which both layer on the same base file.
 
 ## Architecture
 
@@ -100,7 +102,10 @@ HTTP response id and the stored record id always match without a round trip).
 - **OCR providers** implement `IOcrProvider` (`Modules/Extraction/Ocr/`). The active one is
   selected in `ExtractionModule.AddModule` based on `Ocr:Provider` config (`"Paddle"` by default,
   `"AzureVision"` optional). Add a new provider by implementing the interface and adding a branch
-  there — nothing else in the pipeline needs to change.
+  there — nothing else in the pipeline needs to change. Independently of that, the Python sidecar
+  picks its own inference backend from the `OCR_ENGINE` env var (`"rapidocr"` — PP-OCR models under
+  onnxruntime — by default, `"paddle"` opt-in via `requirements-paddle.txt`); both speak the same
+  `/ocr` contract, so `PaddleOcrProvider` is unaffected either way.
 - **PDF report generation** uses NetPdfKit — a small, low-adoption package whose public docs are
   unreliable/inconsistent. If you need to change `ExtractionReportGenerator`, verify API shapes by
   inspecting the installed assembly directly (`Assembly.LoadFrom` + reflection, or read the source
@@ -124,7 +129,8 @@ HTTP response id and the stored record id always match without a round trip).
 
 ### Known environment limitation
 
-Running the real PaddleOCR engine (not the test stub) inside Docker on an ARM64 host under
-virtualization can segfault PaddlePaddle's inference engine — a confirmed upstream bug (see
-README.md), not something in this codebase. All application logic downstream of the OCR call is
-covered by `IdExtractor.Api.IntegrationTests` using a fake `IOcrProvider`, unaffected by this.
+`OCR_ENGINE=paddle` segfaults on ARM64 hosts: PaddlePaddle's inference engine dies (exit 139)
+while PaddleX constructs the PP-OCR models, before any inference runs, and the API sees the OCR
+request drop mid-flight. Confirmed upstream bug (see README.md), not something in this codebase —
+which is why the sidecar defaults to `OCR_ENGINE=rapidocr`. All application logic downstream of
+the OCR call is covered by `IdExtractor.Api.IntegrationTests` using a fake `IOcrProvider`.

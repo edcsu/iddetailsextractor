@@ -1,3 +1,4 @@
--r requirements.txt
+# Tests stub the OCR engine out, so no inference runtime is needed to run them.
+-r requirements-base.txt
 pytest==9.1.1
 httpx==0.28.1

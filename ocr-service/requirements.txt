@@ -1,7 +1,5 @@
-fastapi==0.141.1
-uvicorn[standard]==0.52.1
-python-multipart==0.0.32
-pillow==12.3.0
-numpy>=1.26,<3
-paddlepaddle==3.2.2
-paddleocr==3.7.0
+# Default runtime: PP-OCR models under onnxruntime (OCR_ENGINE=rapidocr). Unlike
+# paddlepaddle it has working native ARM64 wheels.
+-r requirements-base.txt
+rapidocr==3.9.2
+onnxruntime>=1.17,<2
